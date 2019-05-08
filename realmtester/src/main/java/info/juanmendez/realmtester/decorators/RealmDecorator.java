@@ -1,5 +1,8 @@
 package info.juanmendez.realmtester.decorators;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
@@ -103,6 +106,15 @@ public class RealmDecorator {
                     RealmModel newRealmModel = (RealmModel) invocationOnMock.getArguments()[0];
                     return createOrUpdate(newRealmModel);
                 });
+
+        when(realm.createOrUpdateObjectFromJson(
+                Mockito.argThat(new RealmMatchers.ClassMatcher<>(RealmModel.class)),
+                Mockito.any(JSONObject.class))).thenAnswer(invocation -> {
+            Class clazz = (Class) invocation.getArguments()[0];
+            JSONObject object = (JSONObject) invocation.getArguments()[1];
+            RealmModel realmModel= (RealmModel)new Gson().fromJson(object.toString(),clazz);
+            return createOrUpdate(realmModel);
+        });
 
         when(realm.where(Mockito.argThat(
                 new RealmMatchers.ClassMatcher<>(RealmModel.class))))

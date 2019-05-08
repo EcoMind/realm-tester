@@ -34,4 +34,5 @@ dependencies {
     implementation "org.powermock:powermock-module-junit4-rule:1.6.4"
     implementation "org.powermock:powermock-api-mockito:1.6.4"
     implementation "org.powermock:powermock-classloading-xstream:1.6.4"
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 }
