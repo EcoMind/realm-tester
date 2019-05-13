@@ -116,6 +116,18 @@ public class RealmDecorator {
             return createOrUpdate(realmModel);
         });
 
+        when(realm.copyFromRealm(Mockito.any(RealmModel.class)))
+                .thenAnswer((Answer<RealmModel>) invocation -> {
+                    RealmModel newRealmModel = (RealmModel) invocation.getArguments()[0];
+                    return newRealmModel;
+                });
+
+        doAnswer((Answer<Void>) invocation -> {
+            RealmModel newRealmModel = (RealmModel) invocation.getArguments()[0];
+            createOrUpdate(newRealmModel);
+            return null;
+        }).when(realm).insertOrUpdate(Mockito.any(RealmModel.class));
+
         when(realm.where(Mockito.argThat(
                 new RealmMatchers.ClassMatcher<>(RealmModel.class))))
                 .then((Answer<RealmQuery>) invocationOnMock -> {
