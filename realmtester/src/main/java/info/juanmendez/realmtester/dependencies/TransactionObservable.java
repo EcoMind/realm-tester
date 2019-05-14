@@ -12,7 +12,7 @@ public class TransactionObservable {
     private static TransactionObservable instance;
     private static SubscriptionsUtil<TransactionObservable, Object> subscriptionsUtil = new SubscriptionsUtil();
     private static PublishSubject<TransactionEvent> subject = PublishSubject.create();
-
+    private static boolean isInTransaction = false;
     private static ArrayList<Object> stackTransactions = new ArrayList<>();
 
     public static void startRequest(Object keyTransaction, Subscription subscription) {
@@ -29,6 +29,10 @@ public class TransactionObservable {
         } else {
             stackTransactions.add(keyTransaction);
         }
+    }
+
+    public static boolean isInTransaction(){
+        return isInTransaction;
     }
 
     /**
@@ -59,6 +63,7 @@ public class TransactionObservable {
             stackTransactions.remove(keyIndex);
 
             if (keyIndex == 0) {
+                isInTransaction = false;
                 subject.onNext(new TransactionEvent(TransactionEvent.END_TRANSACTION, keyTransaction));
             }
 
@@ -96,6 +101,7 @@ public class TransactionObservable {
     private static void next() {
 
         if (!stackTransactions.isEmpty()) {
+            isInTransaction = true;
             subject.onNext(new TransactionEvent(TransactionEvent.START_TRANSACTION, stackTransactions.get(0)));
         }
     }

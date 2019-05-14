@@ -43,7 +43,6 @@ public class RealmDecorator {
      */
     private static Scheduler observerScheduler = Schedulers.immediate();
     private static Scheduler subscriberScheduler = Schedulers.immediate();
-    private static boolean isInTransaction = false;
 
     public static Realm prepare() throws Exception {
 
@@ -72,7 +71,8 @@ public class RealmDecorator {
 
         when(Realm.getDefaultInstance()).thenReturn(realm);
 
-        when(realm.isInTransaction()).thenReturn(isInTransaction);
+        doAnswer((Answer<Boolean>) invocation -> TransactionObservable.isInTransaction())
+                .when(realm).isInTransaction();
         
         when(Realm.deleteRealm(any(RealmConfiguration.class))).thenAnswer(invocation -> {
             RealmStorage.clear();
@@ -321,7 +321,6 @@ public class RealmDecorator {
         TransactionObservable.KeyTransaction transaction = new TransactionObservable.KeyTransaction(realm.toString());
 
         doAnswer(invocation -> {
-            isInTransaction = true;
             TransactionObservable.startRequest(transaction);
             return null;
         }).when(realm).beginTransaction();
@@ -329,7 +328,6 @@ public class RealmDecorator {
 
         doAnswer(invocation -> {
             TransactionObservable.endRequest(transaction);
-            isInTransaction = false;
             return null;
         }).when(realm).commitTransaction();
     }
