@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 
@@ -121,6 +122,11 @@ public class RealmDecorator {
                     RealmModel newRealmModel = (RealmModel) invocation.getArguments()[0];
                     return newRealmModel;
                 });
+
+        when(realm.copyFromRealm(Mockito.anyCollectionOf(RealmModel.class))).thenAnswer(invocation -> {
+            Collection<RealmModel> newRealmModel = (Collection<RealmModel>) invocation.getArguments()[0];
+            return newRealmModel;
+        });
 
         doAnswer((Answer<Void>) invocation -> {
             RealmModel newRealmModel = (RealmModel) invocation.getArguments()[0];
